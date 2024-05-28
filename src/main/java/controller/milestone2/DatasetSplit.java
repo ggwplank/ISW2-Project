@@ -1,4 +1,4 @@
-package controllerMilestone2;
+package controller.milestone2;
 
 import weka.core.Instances;
 import weka.core.Utils;

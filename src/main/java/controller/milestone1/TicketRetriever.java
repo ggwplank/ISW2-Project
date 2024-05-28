@@ -1,4 +1,4 @@
-package controllerMilestone1;
+package controller.milestone1;
 
 import model.Ticket;
 import model.Version;

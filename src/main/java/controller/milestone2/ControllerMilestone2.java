@@ -1,4 +1,4 @@
-package controllerMilestone2;
+package controller.milestone2;
 
 import utils.Properties;
 import model.MLProfile;

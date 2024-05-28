@@ -1,5 +1,7 @@
-import controllerMilestone1.ControllerMilestone1;
-import controllerMilestone2.ControllerMilestone2;
+package main;
+
+import controller.milestone1.ControllerMilestone1;
+import controller.milestone2.ControllerMilestone2;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

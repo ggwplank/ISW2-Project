@@ -1,4 +1,4 @@
-package controllerMilestone1;
+package controller.milestone1;
 
 import utils.Properties;
 import com.opencsv.CSVReader;

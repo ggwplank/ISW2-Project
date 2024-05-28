@@ -1,4 +1,4 @@
-package controllerMilestone1;
+package controller.milestone1;
 
 import utils.Properties;
 import model.Version;
@@ -44,6 +44,7 @@ public class VersionRetriever {
             versions = getVersions(Properties.OUTPUT_DIRECTORY + projectName + "VersionInfo.csv");
         }catch (IOException | InterruptedException | ParseException e){
             LOGGER.log(Level.SEVERE, "Error while retrieving versions", e);
+            Thread.currentThread().interrupt();
         }
         return versions;
     }

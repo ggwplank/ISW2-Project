@@ -1,4 +1,4 @@
-package controllerMilestone1;
+package controller.milestone1;
 
 import model.ClassInstance;
 import model.Commit;
@@ -59,7 +59,7 @@ public class MetricsCalculator {
         }
         updateInstances(mapInst);
 
-        setBuggy(instances, commits, mapInst);
+        setBuggy(commits, mapInst);
         return instances;
     }
 
@@ -143,7 +143,7 @@ public class MetricsCalculator {
     }
 
 
-    private static void setBuggy(List<ClassInstance> instances, List<Commit> commits, Map<String, List<Integer>> mapInst) {
+    private static void setBuggy(List<Commit> commits, Map<String, List<Integer>> mapInst) {
         for (Commit commit : commits) {
             for (Ticket ticket : commit.getBuggyTickets()) {
                 for (String file : commit.getTouchedClasses()) {
