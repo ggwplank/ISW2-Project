@@ -20,6 +20,8 @@ public class ClassInstance {
     private int age;
     private boolean buggy;
 
+
+
     private int totalLocAdded;                      //this is not a metric for the course
 
     public ClassInstance(String name, Version version, Date creationDate) {
@@ -41,6 +43,32 @@ public class ClassInstance {
         this.totalLocAdded = 0;
     }
 
+    public ClassInstance(ClassInstance instance) {
+        this.name = instance.getName();
+        this.version = instance.getVersion();
+        this.creationDate = instance.getCreationDate();
+        this.numberOfRevisions = instance.getNumberOfRevisions();
+        this.authors = instance.authors;
+        this.numberOfFix = instance.getNumberOfFix();
+        this.size = instance.getSize();
+        this.averageLocAdded = instance.getAverageLocAdded();
+        this.maxLocAdded = instance.getMaxLocAdded();
+        this.churn = instance.getChurn();
+        this.averageChurn = instance.getAverageChurn();
+        this.maxChurn = instance.getMaxChurn();
+        this.age = instance.getAge();
+        this.buggy = instance.isBuggy();
+
+        this.totalLocAdded = instance.getTotalLocAdded();
+    }
+
+    public int getTotalLocAdded() {
+        return totalLocAdded;
+    }
+
+    public void setTotalLocAdded(int totalLocAdded) {
+        this.totalLocAdded = totalLocAdded;
+    }
 
     public String getName() {
         return name;
@@ -154,62 +182,78 @@ public class ClassInstance {
         this.buggy = buggy;
     }
 
-    public void increaseAge(){
+
+    public void addAge(){
         this.age++;
     }
-    public void updateRevisionsLoc(int added, int deleted) {
-        // Update the maximum number of lines added
-        maxLocAdded = Math.max(maxLocAdded, added);
+
+    public void updateLoc(int added, int deleted){
 
         // Calculate the net change in lines
         int netChange = added - deleted;
 
-        // Update the churn (total change in lines)
-        churn += netChange;
-
-        // Update the maximum change in lines
-        maxChurn = Math.max(maxChurn, netChange);
-
         // Update the total size
-        size += netChange;
+        this.size += netChange;
 
         //update total loc added
-        totalLocAdded += added;
+        this.totalLocAdded += added;
+
+        // Update the maximum number of lines added
+        this.maxLocAdded = Math.max(this.maxLocAdded, added);
     }
 
-    public void updateAvgChurnAuthors(String author, boolean fixCommit) {
+    public void updateChurn(int added, int deleted){
+        // Calculate the net change in lines
+        int netChange = added - deleted;
 
-        // Update the total number of revisions
-        numberOfRevisions++;
+        // Update the churn (total change in lines)
+        this.churn += netChange;
 
-        // If the commit is a fix, update the total number of fixes
-        if (fixCommit) {
-            numberOfFix++;
-        }
+        // Update the maximum change in lines
+        this.maxChurn = Math.max(this.maxChurn, netChange);
+    }
 
-        // If the author of the revision is new, add the author to the list of authors
-        if (!authors.contains(author)) {
-            this.authors.add(author);
-        }
-
+    public void updateAvgChurn(){
         // Calculate the average churn per revision
         if (numberOfRevisions != 0) {
-            this.averageChurn = churn / numberOfRevisions;
+            this.averageChurn = this.churn / this.numberOfRevisions;
         } else {
             this.averageChurn = 0; // In case NR is zero, set the average churn to zero to avoid division by zero
         }
 
-        //repeat for the average loc added
-        if(numberOfRevisions != 0){
-            this.averageLocAdded = totalLocAdded/numberOfRevisions;
+    }
+
+    public void updateAvgLocAdded(){
+        //Calculate the average loc added
+        if(this.numberOfRevisions != 0){
+            this.averageLocAdded = this.totalLocAdded/this.numberOfRevisions;
         } else {
             this.averageLocAdded = 0;
         }
-
     }
+
+
+    public void addAuthor(String author) {
+        // If the author of the revision is new, add the author to the list of authors
+        if (!authors.contains(author)) {
+            this.authors.add(author);
+        }
+    }
+
+     public void addRevision(){
+            // Update the total number of revisions
+            numberOfRevisions++;
+    }
+
+    public void addFixCommit(){
+        // update the total number of fixes
+            numberOfFix++;
+    }
+
+
 
     //check if the version is in the affected versions
     public boolean insideAV(Version iv, Version fv) {
-        return version.getEndDate().before(fv.getEndDate()) && version.getEndDate().before(iv.getEndDate()) || version.getEndDate().equals(iv.getEndDate());
+        return (!version.isBefore(iv) || version.isEqual(iv)) && version.isBefore(fv);
     }
 }

@@ -56,4 +56,11 @@ public class Version {
         this.numRel = numRel;
     }
 
+    public boolean isBefore(Version v) {
+        return this.endDate.before(v.getEndDate());
+    }
+
+    public boolean isEqual(Version v) {
+        return this.endDate.equals(v.getEndDate());
+    }
 }

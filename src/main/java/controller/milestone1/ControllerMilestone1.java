@@ -25,8 +25,6 @@ public class ControllerMilestone1 {
     private Git git;
     private List<Version> versions;
 
-    private int buggyCounter ;
-    private int nonBuggyCounter;
 
 
     public void createDataset() {
@@ -70,19 +68,12 @@ public class ControllerMilestone1 {
             LOGGER.log(Level.SEVERE, "Error in dataset.csv writer", e);
         }
 
-        output = String.format("Number of buggy classes is:%s%n", this.buggyCounter);
-        LOGGER.info(output);
-        output = String.format("Number of NON buggy classes is:%s%n", this.nonBuggyCounter);
-        LOGGER.info(output);
-
         output = String.format("Dataset created!%n");
         LOGGER.info(output);
     }
 
     public ControllerMilestone1(String projectName) {
         this.projectName = projectName;
-        this.buggyCounter = 0;
-        this.nonBuggyCounter = 0;
     }
 
     private void initializeProject() {
@@ -103,11 +94,6 @@ public class ControllerMilestone1 {
 
     private String getString(ClassInstance instance) {
         int buggy = instance.isBuggy() ? 1 : 0;
-        if (buggy == 1) {
-            this.buggyCounter++;
-        } else {
-            this.nonBuggyCounter++;
-        }
 
         // Create line for CSV file
         return String.format("%s,%s,%s,%s,%s,%s,%S,%s,%s,%s,%s,%s,%s%n",
@@ -130,8 +116,9 @@ public class ControllerMilestone1 {
 
 
     public void cutVersions(){
-        this.buggyCounter = 0;
-        this.nonBuggyCounter = 0;
+
+        String output = String.format("Cutting csv file for %s%n", projectName);
+        LOGGER.info(output);
 
         List<Version> versionsCopy = versions;
 
@@ -157,13 +144,6 @@ public class ControllerMilestone1 {
             for (String[] row : everyRow) {
                 if (!cuttedListWithID.contains(row[0])) {
                     filteredRow.add(row);
-
-                    //count buggy and non-buggy instances
-                    if(row[12].equals("1")){
-                        this.buggyCounter++;
-                    } else {
-                        this.nonBuggyCounter++;
-                    }
                 }
             }
 
@@ -178,11 +158,6 @@ public class ControllerMilestone1 {
             Path tempPath = Paths.get(Properties.OUTPUT_DIRECTORY + "temp.csv");
             Files.move(tempPath, originalFIle, StandardCopyOption.REPLACE_EXISTING);
 
-
-            String output = String.format("Number of buggy classes is:%s%n", this.buggyCounter);
-            LOGGER.info(output);
-            output = String.format("Number of NON buggy classes is:%s%n", this.nonBuggyCounter);
-            LOGGER.info(output);
 
         } catch (IOException | CsvException e) {
             LOGGER.log(Level.SEVERE, "Error while cutting the dataset");
