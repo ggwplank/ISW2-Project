@@ -1,4 +1,4 @@
-package ControllerMilestone1;
+package controllerMilestone1;
 
 import model.ClassInstance;
 import model.Commit;
@@ -104,7 +104,7 @@ public class MetricsCalculator {
         }
     }
 
-    private static List<Edit> getEdits(List<DiffEntry> diffs, String file) throws IOException {
+    private static List<Edit> getEdits(List<DiffEntry> diffs, String file) {
         try (DiffFormatter diffFormatter = new DiffFormatter(null)) {
             diffFormatter.setRepository(git.getRepository());
             diffFormatter.setDetectRenames(true);
@@ -150,15 +150,18 @@ public class MetricsCalculator {
                     // Indexes of the map
                     List<Integer> indexes = mapInst.getOrDefault(file, Collections.emptyList());
                     for (Integer index : indexes) {
-                        // check of the indexes
-                        if (index >= 0 && index < instances.size()) {
-                            ClassInstance instance = instances.get(index);
-                            if (instance.insideAV(ticket.getAv(), ticket.getFv())) {
-                                instance.setBuggy(true);
-                            }
-                        }
+                        checkIndexes(index,ticket);
                     }
                 }
+            }
+        }
+    }
+
+    private static void checkIndexes(int index, Ticket ticket){
+        if (index >= 0 && index < instances.size()) {
+            ClassInstance instance = instances.get(index);
+            if (instance.insideAV(ticket.getAv(), ticket.getFv())) {
+                instance.setBuggy(true);
             }
         }
     }

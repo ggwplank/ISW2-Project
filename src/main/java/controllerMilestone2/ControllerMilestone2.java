@@ -1,6 +1,6 @@
-package ControllerMilestone2;
+package controllerMilestone2;
 
-import Utils.Properties;
+import utils.Properties;
 import model.MLProfile;
 import model.ModelEvaluation;
 import weka.classifiers.Evaluation;
@@ -75,20 +75,7 @@ public class ControllerMilestone2 {
                         testing = dataFilter.testingData;
 
                         // Evaluate the model for different classifier
-                        for (MLProfile.CLASSIFIER classifier : MLProfile.CLASSIFIER.values()) {
-                            if (classifier == MLProfile.CLASSIFIER.NAIVE_BAYES) {
-                                // Naive bayes cannot handle numeric classes, so we convert them into nominal classes
-                                if (training.classAttribute().isNumeric()) {
-                                    NumericToNominal convert = new NumericToNominal();
-                                    convert.setAttributeIndices("" + (training.classIndex() + 1));
-                                    convert.setInputFormat(training);
-                                    training = Filter.useFilter(training, convert);
-                                    testing = Filter.useFilter(testing, convert);
-                                }
-                            }
-                            Evaluation evaluation = Analyzer.analyze(training, testing, classifier, sensitivity);
-                            modelEvaluations.add(new ModelEvaluation(classifier, featureSelection, balancing, sensitivity, evaluation));
-                        }
+                        evaluate(training,testing,sensitivity,featureSelection,balancing);
                     }
                 }
             }
@@ -98,6 +85,28 @@ public class ControllerMilestone2 {
 
         writeCSV();
     }
+
+
+    private void evaluate(Instances training, Instances testing, MLProfile.SENSITIVITY sensitivity, MLProfile.FEATURE_SELECTION featureSelection, MLProfile.BALANCING balancing ) {
+        for (MLProfile.CLASSIFIER classifier : MLProfile.CLASSIFIER.values()) {
+            if (classifier == MLProfile.CLASSIFIER.NAIVE_BAYES && training.classAttribute().isNumeric()) {
+                try {
+                    // Naive bayes cannot handle numeric classes, so we convert them into nominal classes
+                        NumericToNominal convert = new NumericToNominal();
+                        convert.setAttributeIndices("" + (training.classIndex() + 1));
+                        convert.setInputFormat(training);
+                        training = Filter.useFilter(training, convert);
+                        testing = Filter.useFilter(testing, convert);
+                } catch (Exception e){
+                    LOGGER.log(Level.SEVERE, "Error while converting to nominal classes for NAIVE BAYES", e);
+                }
+            }
+            Evaluation evaluation = Analyzer.analyze(training, testing, classifier, sensitivity);
+            modelEvaluations.add(new ModelEvaluation(classifier, featureSelection, balancing, sensitivity, evaluation));
+        }
+    }
+
+
 
     private void writeCSV(){
 
@@ -147,7 +156,7 @@ public class ControllerMilestone2 {
                 counter++;
             }
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error writing results to CSV", e);
+            LOGGER.log(Level.SEVERE, "Error while writing results to CSV", e);
         }
         output = String.format("CSV file written for %s%n",projectName);
         LOGGER.info(output);

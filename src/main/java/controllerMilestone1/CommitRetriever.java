@@ -1,4 +1,4 @@
-package ControllerMilestone1;
+package controllerMilestone1;
 
 import model.Commit;
 import model.Ticket;
@@ -12,10 +12,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,7 +42,7 @@ public class CommitRetriever {
                 Date creationTime = authorIdent.getWhen();
 
                 //version when the commit was created
-                Version version = VersionRetriever.FindVersion(creationTime, versions);
+                Version version = VersionRetriever.findVersion(creationTime, versions);
                 if (version == null) continue;
 
                 //create the commit
@@ -59,7 +56,7 @@ public class CommitRetriever {
         }catch (JSONException | IOException|GitAPIException ex) {
             LOGGER.log(Level.SEVERE, "Error while retrieving commits", ex);
         }
-        return null;
+        return Collections.emptyList();
     }
 
     private static Commit createCommit(RevCommit rev, String author, Version version, Date creationTime, List<Ticket> tickets) throws JSONException, IOException {

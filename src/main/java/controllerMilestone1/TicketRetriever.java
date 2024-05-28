@@ -1,4 +1,4 @@
-package ControllerMilestone1;
+package controllerMilestone1;
 
 import model.Ticket;
 import model.Version;
@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -53,7 +54,7 @@ public class TicketRetriever {
         } catch (IOException | ParseException e) {
             LOGGER.log(Level.SEVERE, "Error while retrieving Tickets", e);
         }
-        return null;
+        return Collections.emptyList();
     }
 
     private static void getTickets(List<Version> allVersions) throws JSONException, ParseException, IOException {
@@ -84,9 +85,9 @@ public class TicketRetriever {
                 JSONArray versions = fields.getJSONArray("versions");
 
                 //get the affected versions, opening versions and fixed versions
-                Version av = getAffectedVersion(versions, allVersions);
-                Version ov = VersionRetriever.FindVersion(created, allVersions);
-                Version fv = VersionRetriever.FindVersion(resolved, allVersions);
+                Version av = getAffectedVersion(versions);
+                Version ov = VersionRetriever.findVersion(created, allVersions);
+                Version fv = VersionRetriever.findVersion(resolved, allVersions);
 
                 if (ov != null && fv != null) {
                     //add the tickets to the list
@@ -110,7 +111,7 @@ public class TicketRetriever {
         return sdf.parse(dateString);
     }
 
-    private static Version getAffectedVersion(JSONArray versions, List<Version> allVersions) throws ParseException {
+    private static Version getAffectedVersion(JSONArray versions) throws ParseException {
         if (!versions.isEmpty()) {
             JSONObject v = versions.getJSONObject(0);
             if (!v.isNull("releaseDate")) {

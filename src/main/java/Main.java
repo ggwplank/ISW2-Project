@@ -1,5 +1,5 @@
-import ControllerMilestone1.ControllerMilestone1;
-import ControllerMilestone2.ControllerMilestone2;
+import controllerMilestone1.ControllerMilestone1;
+import controllerMilestone2.ControllerMilestone2;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,7 +21,7 @@ public class Main {
             LOGGER.log(Level.SEVERE, "Error while evaluating model performance on BOOKKEEPER", e);
         }
 
-        /*
+/*
         ControllerMilestone1 stormController = new ControllerMilestone1("STORM");
         stormController.createDataset();
 

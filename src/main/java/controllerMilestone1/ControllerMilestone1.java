@@ -1,6 +1,6 @@
-package ControllerMilestone1;
+package controllerMilestone1;
 
-import Utils.Properties;
+import utils.Properties;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
@@ -25,8 +25,8 @@ public class ControllerMilestone1 {
     private Git git;
     private List<Version> versions;
 
-    private static int buggyCounter = 0;
-    private static int nonBuggyCounter = 0;
+    private int buggyCounter ;
+    private int nonBuggyCounter;
 
 
     public void createDataset() {
@@ -57,7 +57,7 @@ public class ControllerMilestone1 {
         output = String.format("Assembling CSV file%n");
         LOGGER.info(output);
 
-        try (FileWriter fileWriter = new FileWriter(Properties.OUTPUT_DIRECTORY + projectName + "dataset.csv")) {
+        try (FileWriter fileWriter = new FileWriter(Properties.OUTPUT_DIRECTORY + projectName + Properties.DATASET)) {
 
             fileWriter.append("Version,Name,Size,Average loc added,Max loc added,Churn,MaxChurn,Average churn,Number of revisions,Number of fix,Number of authors,Age,Buggy");
             fileWriter.append("\n");
@@ -70,9 +70,9 @@ public class ControllerMilestone1 {
             LOGGER.log(Level.SEVERE, "Error in dataset.csv writer", e);
         }
 
-        output = String.format("Number of buggy classes is:%s%n", buggyCounter);
+        output = String.format("Number of buggy classes is:%s%n", this.buggyCounter);
         LOGGER.info(output);
-        output = String.format("Number of NON buggy classes is:%s%n", nonBuggyCounter);
+        output = String.format("Number of NON buggy classes is:%s%n", this.nonBuggyCounter);
         LOGGER.info(output);
 
         output = String.format("Dataset created!%n");
@@ -81,6 +81,8 @@ public class ControllerMilestone1 {
 
     public ControllerMilestone1(String projectName) {
         this.projectName = projectName;
+        this.buggyCounter = 0;
+        this.nonBuggyCounter = 0;
     }
 
     private void initializeProject() {
@@ -99,12 +101,12 @@ public class ControllerMilestone1 {
     }
 
 
-    private static String getString(ClassInstance instance) {
+    private String getString(ClassInstance instance) {
         int buggy = instance.isBuggy() ? 1 : 0;
         if (buggy == 1) {
-            buggyCounter++;
+            this.buggyCounter++;
         } else {
-            nonBuggyCounter++;
+            this.nonBuggyCounter++;
         }
 
         // Create line for CSV file
@@ -128,8 +130,8 @@ public class ControllerMilestone1 {
 
 
     public void cutVersions(){
-        buggyCounter = 0;
-        nonBuggyCounter = 0;
+        this.buggyCounter = 0;
+        this.nonBuggyCounter = 0;
 
         List<Version> versionsCopy = versions;
 
@@ -147,7 +149,7 @@ public class ControllerMilestone1 {
         //delete the versions that are not in the new list
         try {
             // delete the CSV
-            CSVReader reader = new CSVReader(new FileReader(Properties.OUTPUT_DIRECTORY + projectName + "dataset.csv"));
+            CSVReader reader = new CSVReader(new FileReader(Properties.OUTPUT_DIRECTORY + projectName + Properties.DATASET));
             List<String[]> everyRow= reader.readAll();
             reader.close();
 
@@ -158,9 +160,9 @@ public class ControllerMilestone1 {
 
                     //count buggy and non-buggy instances
                     if(row[12].equals("1")){
-                        buggyCounter++;
+                        this.buggyCounter++;
                     } else {
-                        nonBuggyCounter++;
+                        this.nonBuggyCounter++;
                     }
                 }
             }
@@ -172,14 +174,14 @@ public class ControllerMilestone1 {
 
             // replace the file
 
-            Path originalFIle = Paths.get(Properties.OUTPUT_DIRECTORY + projectName + "dataset.csv");
+            Path originalFIle = Paths.get(Properties.OUTPUT_DIRECTORY + projectName + Properties.DATASET);
             Path tempPath = Paths.get(Properties.OUTPUT_DIRECTORY + "temp.csv");
             Files.move(tempPath, originalFIle, StandardCopyOption.REPLACE_EXISTING);
 
 
-            String output = String.format("Number of buggy classes is:%s%n", buggyCounter);
+            String output = String.format("Number of buggy classes is:%s%n", this.buggyCounter);
             LOGGER.info(output);
-            output = String.format("Number of NON buggy classes is:%s%n", nonBuggyCounter);
+            output = String.format("Number of NON buggy classes is:%s%n", this.nonBuggyCounter);
             LOGGER.info(output);
 
         } catch (IOException | CsvException e) {

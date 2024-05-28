@@ -1,4 +1,4 @@
-package ControllerMilestone2;
+package controllerMilestone2;
 
 import model.MLProfile;
 import weka.classifiers.Classifier;
@@ -15,6 +15,9 @@ import java.util.logging.Logger;
 
 public class Analyzer {
     private static final Logger LOGGER = Logger.getLogger("Analyzer");
+
+    private Analyzer(){}
+
 
     public static Evaluation analyze(Instances trainingSet, Instances testingSet, MLProfile.CLASSIFIER classifier, MLProfile.SENSITIVITY sensitivity) {
 

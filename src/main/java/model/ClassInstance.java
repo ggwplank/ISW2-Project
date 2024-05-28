@@ -210,14 +210,6 @@ public class ClassInstance {
 
     //check if the version is in the affected versions
     public boolean insideAV(Version iv, Version fv) {
-        boolean flag= false;
-
-        if(version.getEndDate().before(fv.getEndDate())){
-            if(version.getEndDate().before(iv.getEndDate())||version.getEndDate().equals(iv.getEndDate())){
-                flag=true;
-            }
-        }
-
-        return flag;
+        return version.getEndDate().before(fv.getEndDate()) && version.getEndDate().before(iv.getEndDate()) || version.getEndDate().equals(iv.getEndDate());
     }
 }

@@ -1,11 +1,10 @@
-package ControllerMilestone2;
+package controllerMilestone2;
 
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.filters.Filter;
 import weka.filters.unsupervised.instance.RemoveWithValues;
 
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

@@ -1,6 +1,6 @@
-package ControllerMilestone1;
+package controllerMilestone1;
 
-import Utils.Properties;
+import utils.Properties;
 import model.Version;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,10 +42,8 @@ public class VersionRetriever {
         try{
             getReleaseInfo(projectName);
             versions = getVersions(Properties.OUTPUT_DIRECTORY + projectName + "VersionInfo.csv");
-        }catch (IOException | InterruptedException e){
+        }catch (IOException | InterruptedException | ParseException e){
             LOGGER.log(Level.SEVERE, "Error while retrieving versions", e);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
         }
         return versions;
     }
@@ -94,8 +92,13 @@ public class VersionRetriever {
 
         try (BufferedReader in = new BufferedReader(new FileReader(pathVersion))) {
             String line;
-            //skip the first line
-            in.readLine();
+
+            //skip the header
+            String header = in.readLine();
+            if (header == null){
+                LOGGER.log(Level.SEVERE, "No header in the csv file");
+            }
+
             while ((line = in.readLine()) != null) {
                 String[] x = line.split(",");
                 d = sdf.parse(x[3]);
@@ -119,8 +122,8 @@ public class VersionRetriever {
         return versions;
     }
 
-    public static Version FindVersion(Date date, List<Version> Versions){
-        for (Version version : Versions) {
+    public static Version findVersion(Date date, List<Version> versions){
+        for (Version version : versions) {
             if (!version.getEndDate().before(date)){
                 return version;
             }

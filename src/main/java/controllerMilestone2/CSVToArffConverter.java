@@ -1,6 +1,6 @@
-package ControllerMilestone2;
+package controllerMilestone2;
 
-import Utils.Properties;
+import utils.Properties;
 import weka.core.Instances;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
@@ -20,21 +20,21 @@ public class CSVToArffConverter {
 
     public String convert() {
 
-        String CSVPath;
-        String ARFFPath = "";
+        String csvPath;
+        String arffPath = "";
 
         try{
             String output = String.format("Converting to ARFF for %s%n", projectName);
             LOGGER.info(output);
 
-            CSVPath = Properties.OUTPUT_DIRECTORY + projectName + "dataset.csv";
-            ARFFPath = Properties.OUTPUT_DIRECTORY  + projectName + "dataset.arff";
+            csvPath = Properties.OUTPUT_DIRECTORY + projectName + "dataset.csv";
+            arffPath = Properties.OUTPUT_DIRECTORY  + projectName + "dataset.arff";
 
             // load CSV
             CSVLoader loader = new CSVLoader();
 
 
-            loader.setSource(new File(CSVPath));
+            loader.setSource(new File(csvPath));
 
             Instances data = loader.getDataSet();
 
@@ -43,7 +43,7 @@ public class CSVToArffConverter {
             ArffSaver saver = new ArffSaver();
             saver.setInstances(data);//set the dataset we want to convert
             //and save as ARFF
-            saver.setFile(new File(ARFFPath));
+            saver.setFile(new File(arffPath));
             saver.writeBatch();
             output = "File converted";
             LOGGER.info(output);
@@ -53,7 +53,7 @@ public class CSVToArffConverter {
             LOGGER.info(output);
         }
 
-        return ARFFPath;
+        return arffPath;
     }
 
 }
