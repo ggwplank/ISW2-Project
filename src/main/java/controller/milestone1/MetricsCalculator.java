@@ -22,151 +22,142 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MetricsCalculator {
-    private static final Logger LOGGER = Logger.getLogger("Analyzer");
+    private static final Logger LOGGER = Logger.getLogger(MetricsCalculator.class.getName());
     private static Git git;
     private static List<ClassInstance> instances = new ArrayList<>();
 
-    //this is a utility class
-    private MetricsCalculator(){
-
-    }
-
     public static List<ClassInstance> getInstances(Git gitInstance, List<Commit> commits, List<Version> versions,
                                                    Map<String, List<Integer>> instancesMap) {
-
-        String output = String.format("Calculating metrics%n");
-        LOGGER.info(output);
+        // Log the start of metrics calculation
+        LOGGER.info("Calculating metrics");
 
         git = gitInstance;
 
         ArrayList<ClassInstance> tempList = new ArrayList<>();
         Map<String, Integer> tempMap = new HashMap<>();
 
-        Version currentVersion = versions.getFirst();
+        Version currentVersion = versions.get(0); // Get the first version
         RevCommit previousCommit = null;
 
-        // iteration through the commit list
+        // Iterate through the commit list
         for (Commit commit : commits) {
             String author = commit.getAuthor();
 
-            // version update if necessary
+            // Update version if necessary
             if (!currentVersion.getName().equals(commit.getVersion().getName())) {
                 updateInstances(instancesMap, tempList, tempMap);
                 currentVersion = commit.getVersion();
 
+                // Update the version and age for each class instance
                 for (ClassInstance temp : tempList) {
                     temp.setVersion(currentVersion);
                     temp.addAge();
                 }
             }
 
-            // check if the commit is a fix commit
+            // Check if the commit is a fix commit
             boolean isFixCommit = !commit.getBuggyTickets().isEmpty();
 
             try {
-                // manage file changes for the commit
+                // Manage file changes for the commit
                 manageFile(commit, previousCommit, tempList, tempMap, currentVersion, author, isFixCommit);
-            }catch(IOException e){
+            } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Error while getting instances", e);
             }
 
             previousCommit = commit.getRev();
         }
 
+        // Final update for instances
         updateInstances(instancesMap, tempList, tempMap);
-
         setBuggy(commits, instancesMap);
 
         return instances;
     }
 
-
     private static void manageFile(Commit commit, RevCommit previousCommit, ArrayList<ClassInstance> tempList,
                                    Map<String, Integer> tempMap, Version version, String author, boolean isFixCommit) throws IOException {
 
-        // list of file changes for the commit
+        // List of file changes for the commit
         List<DiffEntry> diffEntryList = computeCommitDiff(previousCommit, commit.getRev());
 
-        // iteration through each file in the commit
+        // Iterate through each file in the commit
         for (String file : commit.getClasses()) {
-            // extraction of file edits
+            // Extract file edits
             List<Edit> editList = extractFileEdits(diffEntryList, file);
 
-            // if no edit is found for the file, then skip to the next one
-            if (editList.isEmpty())
-                continue;
+            // If no edit is found for the file, skip to the next one
+            if (editList.isEmpty()) continue;
             commit.addTouchedClass(file);
 
-            // new Java class instance or get the existing one (if any)
+            // Get existing Java class instance or create a new one
             Integer isPresent = tempMap.get(file);
-            ClassInstance classInstance = isPresent != null ? tempList.get(tempMap.get(file))
+            ClassInstance classInstance = isPresent != null ? tempList.get(isPresent)
                     : new ClassInstance(file, version, commit.getDate());
 
-            // update metrics for each edit in the file
+            // Update metrics for each edit in the file
             for (Edit edit : editList) {
                 int deletedLines = edit.getEndA() - edit.getBeginA();
                 int addedLines = edit.getEndB() - edit.getBeginB();
 
-                classInstance.updateLoc(addedLines,deletedLines);
-                classInstance.updateChurn(addedLines,deletedLines);
-
+                classInstance.updateLoc(addedLines, deletedLines);
+                classInstance.updateChurn(addedLines, deletedLines);
             }
 
-
             classInstance.addRevision();
-            if(isFixCommit){
+            if (isFixCommit) {
                 classInstance.addFixCommit();
             }
             classInstance.updateAvgChurn();
             classInstance.updateAvgLocAdded();
             classInstance.addAuthor(author);
 
-            // if it's new, the Java class instance is added to the list
-            if (isPresent == null)
+            // If it's new, add the Java class instance to the list and map
+            if (isPresent == null) {
                 tempList.add(classInstance);
-
-            // Update the map with the file name and its index
-            tempMap.computeIfAbsent(file, k -> tempList.size() - 1);
+                tempMap.put(file, tempList.size() - 1);
+            }
         }
     }
 
-
     private static void updateInstances(Map<String, List<Integer>> instancesMap, List<ClassInstance> tempList,
-                                          Map<String, Integer> tempMap) {
+                                        Map<String, Integer> tempMap) {
 
         int currentSize = instances.size();
 
-        // Update of stringListMap with new indexes for class names in temporaryJCIList
+        // Update instancesMap with new indexes for class names in tempList
         for (ClassInstance instance : tempList) {
             String instanceName = instance.getName();
 
-            // index in the combined list computed by adding current size to the original index
-            instancesMap.computeIfAbsent(instanceName, k -> new ArrayList<>()).add(tempMap.get(instanceName) + currentSize);
+            // Index in the combined list computed by adding current size to the original index
+            instancesMap.computeIfAbsent(instanceName, k -> new ArrayList<>())
+                    .add(tempMap.get(instanceName) + currentSize);
         }
 
-        // cloning instances from temporaryJCIList to javaClassInstances
+        // Clone instances from tempList to instances
         for (ClassInstance instance : tempList) {
             instances.add(new ClassInstance(instance));
         }
     }
 
     private static List<DiffEntry> computeCommitDiff(RevCommit oldCommit, RevCommit newCommit) throws IOException {
-        List<DiffEntry> diffEntryList = null;
+        List<DiffEntry> diffEntryList;
 
-        // diff formatter to compute the differences
-        DiffFormatter diffFormatter = new DiffFormatter(new ByteArrayOutputStream());
-        diffFormatter.setRepository(git.getRepository());
+        // Diff formatter to compute the differences
+        try (DiffFormatter diffFormatter = new DiffFormatter(new ByteArrayOutputStream())) {
+            diffFormatter.setRepository(git.getRepository());
 
-        // difference between the old and new commits
-        if (oldCommit != null) {
-            // if there's an old commit, its tree is compared with the one associated to the new commit
-            diffEntryList = diffFormatter.scan(oldCommit.getTree(), newCommit.getTree());
-        } else {
-            // if there's no old commit (initial commit), tree associated with the new commit is compared with an empty one
-            ObjectReader objectReader = git.getRepository().newObjectReader();
-            AbstractTreeIterator newCommitTree = new CanonicalTreeParser(null, objectReader, newCommit.getTree());
-            AbstractTreeIterator oldCommitTree = new EmptyTreeIterator();
-            diffEntryList = diffFormatter.scan(oldCommitTree, newCommitTree);
+            // Difference between the old and new commits
+            if (oldCommit != null) {
+                // Compare old commit's tree with new commit's tree
+                diffEntryList = diffFormatter.scan(oldCommit.getTree(), newCommit.getTree());
+            } else {
+                // If no old commit (initial commit), compare new commit's tree with an empty tree
+                ObjectReader objectReader = git.getRepository().newObjectReader();
+                AbstractTreeIterator newCommitTree = new CanonicalTreeParser(null, objectReader, newCommit.getTree());
+                AbstractTreeIterator oldCommitTree = new EmptyTreeIterator();
+                diffEntryList = diffFormatter.scan(oldCommitTree, newCommitTree);
+            }
         }
         return diffEntryList;
     }
@@ -174,45 +165,39 @@ public class MetricsCalculator {
     private static List<Edit> extractFileEdits(List<DiffEntry> diffEntryList, String file) throws IOException {
         ArrayList<Edit> editArrayList = new ArrayList<>();
 
-        DiffFormatter diffFormatter = new DiffFormatter(null);
-        diffFormatter.setRepository(git.getRepository());
+        try (DiffFormatter diffFormatter = new DiffFormatter(null)) {
+            diffFormatter.setRepository(git.getRepository());
 
-        for (DiffEntry diffEntry : diffEntryList) {
-            if (diffEntry.toString().contains(file)) {
-                // the diff entry is for the specified file, file header parsing to obtain edit info
-                diffFormatter.setDetectRenames(true);
-                EditList editList = diffFormatter.toFileHeader(diffEntry).toEditList();
-
-                // each edit is added to the list
-                for (Edit edit : editList)
-                    editArrayList.add(edit);
-                // forse è meglio editArrayList.addAll(editList); ?
-
-            } else {
-                // the diff entry is not for the specified file
-                diffFormatter.setDetectRenames(false);
+            for (DiffEntry diffEntry : diffEntryList) {
+                if (diffEntry.toString().contains(file)) {
+                    // The diff entry is for the specified file; parse file header to obtain edit info
+                    diffFormatter.setDetectRenames(true);
+                    EditList editList = diffFormatter.toFileHeader(diffEntry).toEditList();
+                    editArrayList.addAll(editList);
+                } else {
+                    // The diff entry is not for the specified file
+                    diffFormatter.setDetectRenames(false);
+                }
             }
         }
-
         return editArrayList;
     }
 
-
-    private static void setBuggy(List<Commit> commits, Map<String, List<Integer>> mapInst) {
+    private static void setBuggy(List<Commit> commits, Map<String, List<Integer>> instancesMap) {
         for (Commit commit : commits) {
             for (Ticket ticket : commit.getBuggyTickets()) {
                 for (String file : commit.getTouchedClasses()) {
                     // Indexes of the map
-                    List<Integer> indexes = mapInst.getOrDefault(file, Collections.emptyList());
+                    List<Integer> indexes = instancesMap.getOrDefault(file, Collections.emptyList());
                     for (Integer index : indexes) {
-                        checkIndexes(index,ticket);
+                        checkIndexes(index, ticket);
                     }
                 }
             }
         }
     }
 
-    private static void checkIndexes(int index, Ticket ticket){
+    private static void checkIndexes(int index, Ticket ticket) {
         if (index >= 0 && index < instances.size()) {
             ClassInstance instance = instances.get(index);
             if (instance.insideAV(ticket.getAv(), ticket.getFv())) {
@@ -220,5 +205,4 @@ public class MetricsCalculator {
             }
         }
     }
-
 }

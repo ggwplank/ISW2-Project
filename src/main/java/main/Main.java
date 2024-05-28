@@ -11,10 +11,19 @@ public class Main {
 
     public static void main(String[] args){
 
-
+/*
         ControllerMilestone1 bookkeeperControllerMilestone1 = new ControllerMilestone1("BOOKKEEPER");
         bookkeeperControllerMilestone1.createDataset();
         bookkeeperControllerMilestone1.cutVersions();
+
+ */
+
+        ControllerMilestone2 bookkeeperControllerMilestone2 = new ControllerMilestone2("BOOKKEEPER");
+        try {
+            bookkeeperControllerMilestone2.modelPerformanceEvaluation();
+        } catch (Exception e){
+            LOGGER.log(Level.SEVERE, "Error while evaluating model performance on BOOKKEEPER", e);
+        }
 
 /*
         ControllerMilestone2 bookkeeperControllerMilestone2 = new ControllerMilestone2("BOOKKEEPER");
