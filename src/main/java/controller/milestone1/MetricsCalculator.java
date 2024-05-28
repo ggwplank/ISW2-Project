@@ -26,6 +26,9 @@ public class MetricsCalculator {
     private static Git git;
     private static List<ClassInstance> instances = new ArrayList<>();
 
+
+    private MetricsCalculator(){}
+
     public static List<ClassInstance> getInstances(Git gitInstance, List<Commit> commits, List<Version> versions,
                                                    Map<String, List<Integer>> instancesMap) {
         // Log the start of metrics calculation
@@ -90,19 +93,15 @@ public class MetricsCalculator {
             if (editList.isEmpty()) continue;
             commit.addTouchedClass(file);
 
-            // Get existing Java class instance or create a new one
-            Integer isPresent = tempMap.get(file);
-            ClassInstance classInstance = isPresent != null ? tempList.get(isPresent)
-                    : new ClassInstance(file, version, commit.getDate());
+            // Get existing Java class instance or create a new one using computeIfAbsent
+            int index = tempMap.computeIfAbsent(file, k -> {
+                ClassInstance newInstance = new ClassInstance(file, version, commit.getDate());
+                tempList.add(newInstance);
+                return tempList.size() - 1;
+            });
 
-            // Update metrics for each edit in the file
-            for (Edit edit : editList) {
-                int deletedLines = edit.getEndA() - edit.getBeginA();
-                int addedLines = edit.getEndB() - edit.getBeginB();
-
-                classInstance.updateLoc(addedLines, deletedLines);
-                classInstance.updateChurn(addedLines, deletedLines);
-            }
+            // Retrieve the actual ClassInstance object from the tempList
+            ClassInstance classInstance = getClassInstance(tempList, index, editList);
 
             classInstance.addRevision();
             if (isFixCommit) {
@@ -111,13 +110,20 @@ public class MetricsCalculator {
             classInstance.updateAvgChurn();
             classInstance.updateAvgLocAdded();
             classInstance.addAuthor(author);
-
-            // If it's new, add the Java class instance to the list and map
-            if (isPresent == null) {
-                tempList.add(classInstance);
-                tempMap.put(file, tempList.size() - 1);
-            }
         }
+    }
+
+    private static ClassInstance getClassInstance(ArrayList<ClassInstance> tempList, int index, List<Edit> editList) {
+        ClassInstance classInstance = tempList.get(index);
+        // Update metrics for each edit in the file
+        for (Edit edit : editList) {
+            int deletedLines = edit.getEndA() - edit.getBeginA();
+            int addedLines = edit.getEndB() - edit.getBeginB();
+
+            classInstance.updateLoc(addedLines, deletedLines);
+            classInstance.updateChurn(addedLines, deletedLines);
+        }
+        return classInstance;
     }
 
     private static void updateInstances(Map<String, List<Integer>> instancesMap, List<ClassInstance> tempList,
