@@ -1,5 +1,6 @@
 package controller.milestone2;
 
+import model.ClassInstance;
 import model.MLProfile;
 import weka.classifiers.Classifier;
 import weka.classifiers.CostMatrix;
@@ -8,13 +9,16 @@ import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.lazy.IBk;
 import weka.classifiers.meta.CostSensitiveClassifier;
 import weka.classifiers.trees.RandomForest;
+import weka.core.Instance;
 import weka.core.Instances;
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Analyzer {
     private static final Logger LOGGER = Logger.getLogger("Analyzer");
+    private static Map<Instance, ClassInstance> instanceInfoMap = new HashMap<>();
 
     private Analyzer(){}
 
@@ -55,6 +59,8 @@ public class Analyzer {
                 evaluation.evaluateModel(costSensitiveClassifier, testingSet);
             }
 
+            AcumeInfo.buildAcumeCSV(testingSet,cls);
+
             output = String.format("Analysis terminated%n");
             LOGGER.info(output);
         } catch (Exception e) {
@@ -80,3 +86,4 @@ public class Analyzer {
         };
     }
 }
+
