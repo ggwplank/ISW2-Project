@@ -103,7 +103,6 @@ public class ControllerMilestone2 {
             }
             Evaluation evaluation = Analyzer.analyze(training, testing, classifier, sensitivity);
             modelEvaluations.add(new ModelEvaluation(classifier, featureSelection, balancing, sensitivity, evaluation, Analyzer.NPofB20));
-            System.exit(1);
         }
     }
 
@@ -145,12 +144,12 @@ public class ControllerMilestone2 {
                 String recall = String.format(Locale.US, "%.3f", evaluation.recall(1));
                 String auc = String.format(Locale.US, "%.3f", evaluation.areaUnderROC(1));
                 String kappa = String.format(Locale.US, "%.3f", evaluation.kappa());
-                String NPofB20 = modelEvaluation.getNPofB20().;
+                String NPofB20 = modelEvaluation.getNPofB20().substring(0,5);
 
                 // Create the sting to add
-                String line = String.format("%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
+                String line = String.format("%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
                         projectName, numberOfTrainingRelease, classifier, featureSelection, balancing, sensitivity,
-                        accuracy, precision, recall, auc, kappa);
+                        accuracy, precision, recall, auc, kappa,NPofB20);
 
                 if (!precision.equals("NaN") && !auc.equals("NaN")) {
                     fileWriter.append(line);
