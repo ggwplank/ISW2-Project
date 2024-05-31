@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 public class Analyzer {
     private static final Logger LOGGER = Logger.getLogger("Analyzer");
-    private static Map<Instance, ClassInstance> instanceInfoMap = new HashMap<>();
+    public static String NPofB20;
 
     private Analyzer(){}
 
@@ -42,6 +42,10 @@ public class Analyzer {
                 // Evaluate the model
                 evaluation = new Evaluation(testingSet);
                 evaluation.evaluateModel(cls, testingSet);
+
+                //calculate NPofB
+                NPofB20 = AcumeInfo.buildAcumeCSV(testingSet,cls);
+
             } else {
                 // Classifier cost-sensitive
                 CostSensitiveClassifier costSensitiveClassifier = new CostSensitiveClassifier();
@@ -57,9 +61,10 @@ public class Analyzer {
                 // Evaluate the cost-sensitive model
                 evaluation = new Evaluation(testingSet, costMatrix);
                 evaluation.evaluateModel(costSensitiveClassifier, testingSet);
-            }
 
-            AcumeInfo.buildAcumeCSV(testingSet,cls);
+                //calculate NPofB
+                NPofB20 = AcumeInfo.buildAcumeCSV(testingSet,costSensitiveClassifier);
+            }
 
             output = String.format("Analysis terminated%n");
             LOGGER.info(output);

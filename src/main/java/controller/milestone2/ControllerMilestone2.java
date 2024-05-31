@@ -102,7 +102,8 @@ public class ControllerMilestone2 {
                 }
             }
             Evaluation evaluation = Analyzer.analyze(training, testing, classifier, sensitivity);
-            modelEvaluations.add(new ModelEvaluation(classifier, featureSelection, balancing, sensitivity, evaluation));
+            modelEvaluations.add(new ModelEvaluation(classifier, featureSelection, balancing, sensitivity, evaluation, Analyzer.NPofB20));
+            System.exit(1);
         }
     }
 
@@ -116,7 +117,7 @@ public class ControllerMilestone2 {
         String path = Properties.OUTPUT_DIRECTORY + projectName + "evaluationResults.csv";
 
         try (FileWriter fileWriter = new FileWriter(path)) {
-            fileWriter.append("Dataset,#TrainingRelease,Classifier,Feature Selection,Balancing,Sensitivity,Accuracy,Precision,Recall,AUC,Kappa\n");
+            fileWriter.append("Dataset,#TrainingRelease,Classifier,Feature Selection,Balancing,Sensitivity,Accuracy,Precision,Recall,AUC,Kappa,NPofB20\n");
             int numberOfTrainingRelease = 1;
             int counter = 0;
 
@@ -144,6 +145,7 @@ public class ControllerMilestone2 {
                 String recall = String.format(Locale.US, "%.3f", evaluation.recall(1));
                 String auc = String.format(Locale.US, "%.3f", evaluation.areaUnderROC(1));
                 String kappa = String.format(Locale.US, "%.3f", evaluation.kappa());
+                String NPofB20 = modelEvaluation.getNPofB20().;
 
                 // Create the sting to add
                 String line = String.format("%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",

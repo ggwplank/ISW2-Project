@@ -5,7 +5,14 @@ import utils.Properties;
 import weka.classifiers.Classifier;
 import weka.core.Instance;
 import weka.core.Instances;
-import java.io.FileWriter;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
+
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -19,7 +26,7 @@ public class AcumeInfo {
 
     private AcumeInfo(){}
 
-    public static void buildAcumeCSV(Instances testingSet, Classifier cls) {
+    public static String buildAcumeCSV(Instances testingSet, Classifier cls ) {
 
         List<Acume> acumeList = new ArrayList<>();
 
@@ -40,7 +47,12 @@ public class AcumeInfo {
 
                 double[] distribution = cls.distributionForInstance(instance);
                 double predictedProbability = distribution[1]; // Assuming binary classification (class index 1 for positive class)
-                double size = instance.value(0);
+                // Truncate predictedProbability to three decimal places
+                BigDecimal bd = new BigDecimal(predictedProbability).setScale(3, RoundingMode.DOWN);
+                predictedProbability = bd.doubleValue();
+
+
+                double size = instance.value(1);
 
                 acumeObject = new Acume(i, size, predictedProbability, actual);
                 acumeList.add(acumeObject);
@@ -52,7 +64,7 @@ public class AcumeInfo {
         String output = String.format("Assembling CSV file fo ACUME%n");
         LOGGER.info(output);
 
-        try (FileWriter fileWriter = new FileWriter(Properties.OUTPUT_DIRECTORY+"Acume.csv")) {
+        try (FileWriter fileWriter = new FileWriter(Properties.ACUME_DIRECTORY+"csv/Acume.csv")) {
 
             fileWriter.append("ID,Size,Predicted,Actual");
             fileWriter.append("\n");
@@ -69,13 +81,51 @@ public class AcumeInfo {
         output = String.format(".csv file created!%n");
         LOGGER.info(output);
 
-        System.exit(1);
+        return evaluateNPofB20();
 
     }
 
     private static String getString(Acume acume){
-        return String.format("%s,%s,%s,%s%n",acume.getId(),acume.getSize(),acume.getPredicted(),acume.getActualStringValue());
+        return String.format("%s,%s,%s,%s%n",acume.getId(),(int)acume.getSize(),acume.getPredicted(),acume.getActualStringValue());
     }
 
+    private static String evaluateNPofB20(){
+        try {
+            // Imposta la directory di lavoro
+            File directory = new File(Properties.ACUME_DIRECTORY); // Sostituisci con il percorso assoluto corretto
 
+            // Costruisci il comando
+            ProcessBuilder processBuilder = new ProcessBuilder("python3", "main.py", "NPofB");
+            processBuilder.directory(directory);
+
+            // Avvia il processo
+            Process process = processBuilder.start();
+
+            // Attendi la fine del processo e ottieni il codice di uscita
+            process.waitFor();
+
+            //extract data from csv
+            return extractNPofB();
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error while evaluating NPofB", e);
+            return null;
+        }
+    }
+
+    private static String extractNPofB() {
+        String csvFile = Properties.ACUME_DIRECTORY+"/EAM_NEAM_output.csv"; // Sostituisci con il percorso corretto del tuo file CSV
+        try (CSVReader reader = new CSVReader(new FileReader(csvFile))) {
+            // Leggi e ignora la prima riga (header)
+            reader.readNext();
+
+            // Leggi la seconda riga (dati)
+            String[] nextLine = reader.readNext();
+            return nextLine[3];
+        } catch (IOException | CsvValidationException e) {
+            LOGGER.log(Level.SEVERE, "Error while evaluating NPofB", e);
+            return null;
+        }
+
+    }
 }

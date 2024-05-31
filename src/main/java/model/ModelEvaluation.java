@@ -7,14 +7,16 @@ public class ModelEvaluation {
     private MLProfile.FEATURE_SELECTION featureSelection;
     private MLProfile.BALANCING balancing;
     private MLProfile.SENSITIVITY sensitivity;
+    private String NPofB20;
     private Evaluation evaluation;
 
-    public ModelEvaluation(MLProfile.CLASSIFIER classifier, MLProfile.FEATURE_SELECTION featureSelection, MLProfile.BALANCING balancing, MLProfile.SENSITIVITY sensitivity, Evaluation evaluation) {
+    public ModelEvaluation(MLProfile.CLASSIFIER classifier, MLProfile.FEATURE_SELECTION featureSelection, MLProfile.BALANCING balancing, MLProfile.SENSITIVITY sensitivity, Evaluation evaluation, String NPofB20) {
         this.classifier = classifier;
         this.featureSelection = featureSelection;
         this.balancing = balancing;
         this.sensitivity = sensitivity;
         this.evaluation = evaluation;
+        this.NPofB20 = NPofB20;
     }
 
     public MLProfile.CLASSIFIER getClassifier() {
@@ -55,5 +57,13 @@ public class ModelEvaluation {
 
     public void setEvaluation(Evaluation evaluation) {
         this.evaluation = evaluation;
+    }
+
+    public String getNPofB20() {
+        return NPofB20;
+    }
+
+    public void setNPofB20(String NPofB20) {
+        this.NPofB20 = NPofB20;
     }
 }
