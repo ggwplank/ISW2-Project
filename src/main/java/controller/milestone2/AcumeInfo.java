@@ -116,7 +116,7 @@ public class AcumeInfo {
             //extract data from csv
             nPofB20 = extractNPofB();
 
-        } catch (Exception e) {
+        } catch (InterruptedException | IOException e) {
             LOGGER.log(Level.SEVERE, "Error while evaluating NPofB", e);
         }
         return nPofB20;
