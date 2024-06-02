@@ -9340,7 +9340,7 @@
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/auth/package-info.java,360,19,20,360,20,18,19,3,8,11,1
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/AbstractLogCompactor.java,71,71,71,71,71,71,1,0,1,11,0
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/BookKeeperServerStats.java,4592,94,140,4592,140,91,50,20,16,11,1
-4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/Bookie.java,63523,501,1699,63523,1699,474,134,82,23,11,1
+4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/Bookie.java,63523,497,1699,63523,1699,477,133,82,23,11,1
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/BookieCriticalThread.java,1800,45,45,1800,45,45,40,15,16,11,1
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/BookieException.java,7192,151,282,7192,282,146,49,22,19,11,1
 4.1.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/BookieShell.java,90772,1118,2582,90772,2582,1093,83,44,22,11,1
@@ -11674,7 +11674,7 @@
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/auth/package-info.java,360,19,20,360,20,18,19,3,8,12,1
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/AbstractLogCompactor.java,71,71,71,71,71,71,1,0,1,12,0
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/BookKeeperServerStats.java,4592,94,140,4592,140,91,50,20,16,12,1
-4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/Bookie.java,63042,458,1699,63042,1699,428,147,93,23,12,1
+4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/Bookie.java,63042,454,1699,63042,1699,431,146,93,23,12,1
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/BookieCriticalThread.java,1800,45,45,1800,45,45,40,15,16,12,1
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/BookieException.java,7181,145,282,7181,282,140,51,24,19,12,1
 4.0.0,bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/BookieShell.java,90772,1118,2582,90772,2582,1093,83,44,22,12,1

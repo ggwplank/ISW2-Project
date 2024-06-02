@@ -84,24 +84,35 @@ public class MetricsCalculator {
         // List of file changes for the commit
         List<DiffEntry> diffEntryList = computeCommitDiff(previousCommit, commit.getRev());
 
+        ClassInstance classInstance;
+
         // Iterate through each file in the commit
         for (String file : commit.getClasses()) {
+
             // Extract file edits
             List<Edit> editList = extractFileEdits(diffEntryList, file);
 
             // If no edit is found for the file, skip to the next one
             if (editList.isEmpty()) continue;
+
             commit.addTouchedClass(file);
 
-            // Get existing Java class instance or create a new one using computeIfAbsent
-            int index = tempMap.computeIfAbsent(file, k -> {
-                ClassInstance newInstance = new ClassInstance(file, version, commit.getDate());
-                tempList.add(newInstance);
-                return tempList.size() - 1;
-            });
+            Integer isPresent = tempMap.get(file);
+            if (isPresent!=null){
+                classInstance =tempList.get(tempMap.get(file));
+            } else {
+                classInstance = new ClassInstance(file,version,commit.getDate());
+            }
 
-            // Retrieve the actual ClassInstance object from the tempList
-            ClassInstance classInstance = getClassInstance(tempList, index, editList);
+            for(Edit edit : editList) {
+                int added = edit.getEndB() - edit.getBeginB();
+                int deleted = edit.getEndA() - edit.getBeginA();
+                classInstance.updateLoc(added,deleted);
+                classInstance.updateChurn(added,deleted);
+                if(Objects.equals(classInstance.getName(), "bookkeeper-benchmark/src/main/java/org/apache/bookkeeper/benchmark/BenchBookie.java")){
+                    System.out.println(added-deleted);
+                }
+            }
 
             classInstance.addRevision();
             if (isFixCommit) {
@@ -110,20 +121,15 @@ public class MetricsCalculator {
             classInstance.updateAvgChurn();
             classInstance.updateAvgLocAdded();
             classInstance.addAuthor(author);
-        }
-    }
 
-    private static ClassInstance getClassInstance(ArrayList<ClassInstance> tempList, int index, List<Edit> editList) {
-        ClassInstance classInstance = tempList.get(index);
-        // Update metrics for each edit in the file
-        for (Edit edit : editList) {
-            int deletedLines = edit.getEndA() - edit.getBeginA();
-            int addedLines = edit.getEndB() - edit.getBeginB();
+            // Get existing Java class instance or create a new one using computeIfAbsent
+            if (isPresent == null) {
+                tempList.add(classInstance);
+            }
+            tempMap.computeIfAbsent(file, k -> tempList.size()-1);
 
-            classInstance.updateLoc(addedLines, deletedLines);
-            classInstance.updateChurn(addedLines, deletedLines);
+
         }
-        return classInstance;
     }
 
     private static void updateInstances(Map<String, List<Integer>> instancesMap, List<ClassInstance> tempList,
@@ -175,7 +181,7 @@ public class MetricsCalculator {
             diffFormatter.setRepository(git.getRepository());
 
             for (DiffEntry diffEntry : diffEntryList) {
-                if (diffEntry.toString().contains(file)) {
+                if (diffEntry.getNewPath().endsWith(file) || diffEntry.getOldPath().endsWith(file)) {
                     // The diff entry is for the specified file; parse file header to obtain edit info
                     diffFormatter.setDetectRenames(true);
                     EditList editList = diffFormatter.toFileHeader(diffEntry).toEditList();
@@ -188,6 +194,7 @@ public class MetricsCalculator {
         }
         return editArrayList;
     }
+
 
     private static void setBuggy(List<Commit> commits, Map<String, List<Integer>> instancesMap) {
         for (Commit commit : commits) {

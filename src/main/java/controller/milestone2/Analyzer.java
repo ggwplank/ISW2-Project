@@ -1,6 +1,5 @@
 package controller.milestone2;
 
-import model.ClassInstance;
 import model.MLProfile;
 import weka.classifiers.Classifier;
 import weka.classifiers.CostMatrix;
@@ -9,10 +8,8 @@ import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.lazy.IBk;
 import weka.classifiers.meta.CostSensitiveClassifier;
 import weka.classifiers.trees.RandomForest;
-import weka.core.Instance;
 import weka.core.Instances;
-import java.util.HashMap;
-import java.util.Map;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +41,7 @@ public class Analyzer {
                 evaluation.evaluateModel(cls, testingSet);
 
                 //calculate NPofB
-                NPofB20 = AcumeInfo.buildAcumeCSV(testingSet,cls);
+                NPofB20 = AcumeInfo.getNPofB20(testingSet,cls);
 
             } else {
                 // Classifier cost-sensitive
@@ -63,7 +60,7 @@ public class Analyzer {
                 evaluation.evaluateModel(costSensitiveClassifier, testingSet);
 
                 //calculate NPofB
-                NPofB20 = AcumeInfo.buildAcumeCSV(testingSet,costSensitiveClassifier);
+                NPofB20 = AcumeInfo.getNPofB20(testingSet,costSensitiveClassifier);
             }
 
             output = String.format("Analysis terminated%n");

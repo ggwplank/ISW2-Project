@@ -153,12 +153,12 @@ public class ControllerMilestone1 {
             writer.close();
 
             // replace the file
-
             Path originalFIle = Paths.get(Properties.OUTPUT_DIRECTORY + projectName + Properties.DATASET);
             Path tempPath = Paths.get(Properties.OUTPUT_DIRECTORY + "temp.csv");
             Files.move(tempPath, originalFIle, StandardCopyOption.REPLACE_EXISTING);
 
-
+            output = String.format("csv file cut for %s%n", projectName);
+            LOGGER.info(output);
         } catch (IOException | CsvException e) {
             LOGGER.log(Level.SEVERE, "Error while cutting the dataset");
         }
