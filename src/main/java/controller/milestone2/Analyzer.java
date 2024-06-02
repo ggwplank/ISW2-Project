@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 
 public class Analyzer {
     private static final Logger LOGGER = Logger.getLogger("Analyzer");
-    public static String NPofB20;
+    private static String nPofB20 = null;
 
     private Analyzer(){}
 
@@ -41,7 +41,7 @@ public class Analyzer {
                 evaluation.evaluateModel(cls, testingSet);
 
                 //calculate NPofB
-                NPofB20 = AcumeInfo.getNPofB20(testingSet,cls);
+                nPofB20 = AcumeInfo.getNPofB20(testingSet,cls);
 
             } else {
                 // Classifier cost-sensitive
@@ -60,7 +60,7 @@ public class Analyzer {
                 evaluation.evaluateModel(costSensitiveClassifier, testingSet);
 
                 //calculate NPofB
-                NPofB20 = AcumeInfo.getNPofB20(testingSet,costSensitiveClassifier);
+                nPofB20 = AcumeInfo.getNPofB20(testingSet,costSensitiveClassifier);
             }
 
             output = String.format("Analysis terminated%n");
@@ -87,5 +87,10 @@ public class Analyzer {
             default -> new IBk();
         };
     }
+
+    public static String getnPofB20(){
+        return nPofB20;
+    }
+
 }
 

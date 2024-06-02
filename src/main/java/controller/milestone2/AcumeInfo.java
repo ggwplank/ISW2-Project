@@ -50,7 +50,7 @@ public class AcumeInfo {
                 double[] distribution = cls.distributionForInstance(instance);
                 double predictedProbability = distribution[1]; //predicted
                 // Truncate predictedProbability to three decimal places
-                BigDecimal bd = new BigDecimal(predictedProbability).setScale(3, RoundingMode.DOWN);
+                BigDecimal bd = BigDecimal.valueOf(predictedProbability).setScale(3, RoundingMode.DOWN);
                 predictedProbability = bd.doubleValue();
 
 
@@ -63,14 +63,14 @@ public class AcumeInfo {
         }
 
         writeAcumeCsv(acumeList);
-        String NPofB20 = evaluateNPofB20();
+        String nPofB20 = evaluateNPofB20();
         eliminateGeneratedFiles();
-        return NPofB20;
+        return nPofB20;
     }
 
 
         private static void writeAcumeCsv(List<Acume> acumeList){
-            String output = String.format("Assembling CSV file fo ACUME%n");
+            String output = String.format("Assembling CSV file for ACUME%n");
             LOGGER.info(output);
 
             try (FileWriter fileWriter = new FileWriter(Properties.ACUME_DIRECTORY+"Acume.csv")) {
@@ -96,6 +96,9 @@ public class AcumeInfo {
     }
 
     private static String evaluateNPofB20(){
+
+        String nPofB20 = null;
+
         try {
             // work directory
             File directory = new File(Properties.ACUME_DIRECTORY);
@@ -111,12 +114,12 @@ public class AcumeInfo {
             process.waitFor();
 
             //extract data from csv
-            return extractNPofB();
+            nPofB20 = extractNPofB();
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error while evaluating NPofB", e);
-            return null;
         }
+        return nPofB20;
     }
 
     private static String extractNPofB() {
@@ -140,15 +143,13 @@ public class AcumeInfo {
         File file2 = new File(Properties.ACUME_DIRECTORY+"EAM_NEAM_output.csv");
         File file3 = new File(Properties.ACUME_DIRECTORY+"norm_EAM_NEAM_output.csv");
 
-        if(file1.exists()){
-            file1.delete();
+        if(file1.delete()&&file2.delete()&&file3.delete()){
+            String output = String.format("Generated files from ACUME deleted%n");
+            LOGGER.info(output);
+        } else{
+            LOGGER.log(Level.SEVERE, "Error while eliminating generated files from ACUME%n");
         }
-        if(file2.exists()){
-            file2.delete();
-        }
-        if(file3.exists()){
-            file3.delete();
-        }
+
     }
 
 }
