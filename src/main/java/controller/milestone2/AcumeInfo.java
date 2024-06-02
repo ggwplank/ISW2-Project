@@ -116,8 +116,12 @@ public class AcumeInfo {
             //extract data from csv
             nPofB20 = extractNPofB();
 
-        } catch (InterruptedException | IOException e) {
-            LOGGER.log(Level.SEVERE, "Error while evaluating NPofB", e);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "IO error while evaluating NPofB", e);
+        } catch (InterruptedException e) {
+            // Restore the interrupted status
+            Thread.currentThread().interrupt();
+            LOGGER.log(Level.SEVERE, "Thread interrupted while evaluating NPofB", e);
         }
         return nPofB20;
     }
