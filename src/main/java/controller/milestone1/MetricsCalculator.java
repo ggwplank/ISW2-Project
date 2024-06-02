@@ -36,10 +36,13 @@ public class MetricsCalculator {
 
         git = gitInstance;
 
+        //for the purpose of this cicle the commits have to be inverted
+        commits = commits.reversed();
+
         ArrayList<ClassInstance> tempList = new ArrayList<>();
         Map<String, Integer> tempMap = new HashMap<>();
 
-        Version currentVersion = versions.get(0); // Get the first version
+        Version currentVersion = versions.getFirst(); // Get the first version
         RevCommit previousCommit = null;
 
         // Iterate through the commit list
@@ -64,12 +67,16 @@ public class MetricsCalculator {
             try {
                 // Manage file changes for the commit
                 manageFile(commit, previousCommit, tempList, tempMap, currentVersion, author, isFixCommit);
+
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Error while getting instances", e);
             }
 
             previousCommit = commit.getRev();
         }
+
+        //restore the original commit order
+        commits = commits.reversed();
 
         // Final update for instances
         updateInstances(instancesMap, tempList, tempMap);
@@ -85,6 +92,8 @@ public class MetricsCalculator {
         List<DiffEntry> diffEntryList = computeCommitDiff(previousCommit, commit.getRev());
 
         ClassInstance classInstance;
+
+
 
         // Iterate through each file in the commit
         for (String file : commit.getClasses()) {
@@ -109,10 +118,8 @@ public class MetricsCalculator {
                 int deleted = edit.getEndA() - edit.getBeginA();
                 classInstance.updateLoc(added,deleted);
                 classInstance.updateChurn(added,deleted);
-                if(Objects.equals(classInstance.getName(), "bookkeeper-benchmark/src/main/java/org/apache/bookkeeper/benchmark/BenchBookie.java")){
-                    System.out.println(added-deleted);
-                }
             }
+
 
             classInstance.addRevision();
             if (isFixCommit) {
@@ -127,8 +134,6 @@ public class MetricsCalculator {
                 tempList.add(classInstance);
             }
             tempMap.computeIfAbsent(file, k -> tempList.size()-1);
-
-
         }
     }
 
@@ -181,7 +186,7 @@ public class MetricsCalculator {
             diffFormatter.setRepository(git.getRepository());
 
             for (DiffEntry diffEntry : diffEntryList) {
-                if (diffEntry.getNewPath().endsWith(file) || diffEntry.getOldPath().endsWith(file)) {
+                if (diffEntry.toString().contains(file)) {
                     // The diff entry is for the specified file; parse file header to obtain edit info
                     diffFormatter.setDetectRenames(true);
                     EditList editList = diffFormatter.toFileHeader(diffEntry).toEditList();

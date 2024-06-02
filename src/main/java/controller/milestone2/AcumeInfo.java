@@ -73,7 +73,7 @@ public class AcumeInfo {
             String output = String.format("Assembling CSV file fo ACUME%n");
             LOGGER.info(output);
 
-            try (FileWriter fileWriter = new FileWriter(Properties.ACUME_DIRECTORY+"csv/Acume.csv")) {
+            try (FileWriter fileWriter = new FileWriter(Properties.ACUME_DIRECTORY+"Acume.csv")) {
 
                 fileWriter.append("ID,Size,Predicted,Actual");
                 fileWriter.append("\n");
@@ -136,7 +136,7 @@ public class AcumeInfo {
     }
 
     private static void eliminateGeneratedFiles(){
-        File file1 = new File(Properties.ACUME_DIRECTORY+"csv/Acume.csv");
+        File file1 = new File(Properties.ACUME_DIRECTORY+"Acume.csv");
         File file2 = new File(Properties.ACUME_DIRECTORY+"EAM_NEAM_output.csv");
         File file3 = new File(Properties.ACUME_DIRECTORY+"norm_EAM_NEAM_output.csv");
 

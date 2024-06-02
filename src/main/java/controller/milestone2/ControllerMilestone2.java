@@ -106,8 +106,6 @@ public class ControllerMilestone2 {
         }
     }
 
-
-
     private void writeCSV(){
 
         String output = String.format("Writing results to CSV for %s%n",projectName);
