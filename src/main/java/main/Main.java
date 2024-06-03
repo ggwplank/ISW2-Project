@@ -11,9 +11,12 @@ public class Main {
 
     public static void main(String[] args){
 
+        /*
         ControllerMilestone1 bookkeeperControllerMilestone1 = new ControllerMilestone1("BOOKKEEPER");
         bookkeeperControllerMilestone1.createDataset();
         bookkeeperControllerMilestone1.cutVersions();
+
+         */
 
         ControllerMilestone2 bookkeeperControllerMilestone2 = new ControllerMilestone2("BOOKKEEPER");
 

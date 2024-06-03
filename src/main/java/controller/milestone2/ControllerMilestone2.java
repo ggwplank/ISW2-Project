@@ -137,12 +137,14 @@ public class ControllerMilestone2 {
 
                 // Calculate the evaluation metrics
                 Evaluation evaluation = modelEvaluation.getEvaluation();
+
                 String accuracy = String.format(Locale.US, "%.3f", evaluation.pctCorrect());
                 String precision = String.format(Locale.US, "%.3f", evaluation.precision(1));
                 String recall = String.format(Locale.US, "%.3f", evaluation.recall(1));
                 String auc = String.format(Locale.US, "%.3f", evaluation.areaUnderROC(1));
                 String kappa = String.format(Locale.US, "%.3f", evaluation.kappa());
-                String nPofB20 = modelEvaluation.getnPofB20().substring(0,5);
+                String nPofB20 = modelEvaluation.getnPofB20();
+
 
                 // Create the sting to add
                 String line = String.format("%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
