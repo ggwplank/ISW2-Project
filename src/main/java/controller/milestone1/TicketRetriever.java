@@ -165,7 +165,10 @@ public class TicketRetriever {
                 i++;
                 continue;
             }
+
+            //TODO check the null values
             //check if the ov's endDate comes before the av's endDate
+System.out.println(ticket.getOv().getName());
             if (ticket.getOv().getEndDate().before(ticket.getAv().getEndDate())) {
                 tickets.remove(i);
             } else {

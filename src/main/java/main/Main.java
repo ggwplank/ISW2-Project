@@ -21,9 +21,9 @@ public class Main {
     public static void main(String[] args) {
 
 
-        ControllerMilestone1 controllerMilestone1 = new ControllerMilestone1("STORM");
+        ControllerMilestone1 controllerMilestone1 = new ControllerMilestone1("BOOKKEEPER");
         controllerMilestone1.createDataset();
-        //controllerMilestone1.cutVersions();
+        controllerMilestone1.cutVersions();
     }
 }
 

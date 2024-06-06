@@ -40,7 +40,11 @@ public class ControllerMilestone1 {
 
         //get the versions
         versions = VersionRetriever.retrieveVersions(projectName);
-
+        for (Version version:versions){
+            System.out.println(version.getName());
+            System.out.println(version.getStartDate());
+            System.out.println(version.getEndDate());
+        }
 
         //get the tickets
         tickets = TicketRetriever.retrieveTickets(versions, projectName);

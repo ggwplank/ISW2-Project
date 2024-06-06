@@ -14,12 +14,17 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import static utils.Properties.OUTPUT_DIRECTORY;
 
 
 public class VersionRetriever {
@@ -38,7 +43,7 @@ public class VersionRetriever {
         List<Version> versions = null;
         try{
             getReleaseInfo(projectName);
-            versions = getVersions(Properties.OUTPUT_DIRECTORY + projectName + "VersionInfo.csv");
+            versions = getVersions(OUTPUT_DIRECTORY + projectName + "VersionInfo.csv");
         }catch (IOException | InterruptedException | ParseException e){
             LOGGER.log(Level.SEVERE, "Error while retrieving versions", e);
             Thread.currentThread().interrupt();
@@ -83,14 +88,41 @@ public class VersionRetriever {
             }
         }
 
-        String fileName = Properties.OUTPUT_DIRECTORY + projectName + "VersionInfo.csv";
+
+        String fileName = OUTPUT_DIRECTORY + projectName + "VersionInfo.csv";
         Files.write(Paths.get(fileName), csvContent.toString().getBytes());
-
-        //TODO ordinare le versioni secondo release date
-
-
-
+        sortCsvByReleaseDate(projectName);
     }
+
+    private static void sortCsvByReleaseDate(String projectName) throws IOException {
+        String fileName = OUTPUT_DIRECTORY + projectName + "VersionInfo.csv";
+        List<String> lines = Files.readAllLines(Paths.get(fileName));
+
+        // Extract header
+        String header = lines.remove(0);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        // Sort lines by the release date (4th column)
+        List<String[]> sortedLines = lines.stream()
+                .map(line -> line.split(","))
+                .sorted(Comparator.comparing(parts -> LocalDate.parse(parts[3], formatter)))
+                .collect(Collectors.toList());
+
+        // Update indices
+        for (int i = 0; i < sortedLines.size(); i++) {
+            sortedLines.get(i)[0] = String.valueOf(i + 1);
+        }
+
+        // Write sorted data back to the CSV file
+        List<String> outputLines = new ArrayList<>();
+        outputLines.add(header); // Re-add header
+        outputLines.addAll(sortedLines.stream()
+                .map(parts -> String.join(",", parts))
+                .collect(Collectors.toList()));
+
+        Files.write(Paths.get(fileName), outputLines);
+    }
+
 
     private static List<Version> getVersions(String pathVersion) throws IOException, ParseException {
         List<Version> versions = new ArrayList<>();
@@ -114,17 +146,15 @@ public class VersionRetriever {
         }
 
 
-        //we do not consider the last version that is the current version of the project
-        for(int i=0; i < versions.size() -1 ; i++ ){
+
+        //set the end date for every version with the start of the next version in the file
+        for(int i=0; i < versions.size() -1; i++ ){
             versions.get(i).setEndDate(versions.get(i+1).getStartDate());
-            System.out.println(versions.get(i).getStartDate());
-            System.out.println(versions.get(i).getEndDate());
         }
 
-        //TODO controllare che il meccanismo funzioni
+        //we do not consider the last version that is the current version of the project
+        versions.removeLast();
 
-
-        System.exit(1);
         return versions;
     }
 
