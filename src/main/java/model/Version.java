@@ -9,10 +9,10 @@ public class Version {
     private Date startDate;
     private int numRel;
 
-    public Version(long id, String name, Date endDate) {
+    public Version(long id, String name, Date startDate) {
         this.id = id;
         this.name = name;
-        this.endDate = endDate;
+        this.startDate = startDate;
         this.numRel = -1;
     }
 

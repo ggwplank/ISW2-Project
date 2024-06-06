@@ -40,7 +40,7 @@ public class ControllerMilestone1 {
 
         //get the versions
         versions = VersionRetriever.retrieveVersions(projectName);
-        versions.sort(Comparator.comparing(Version::getEndDate));
+
 
         //get the tickets
         tickets = TicketRetriever.retrieveTickets(versions, projectName);
@@ -49,7 +49,6 @@ public class ControllerMilestone1 {
         commits = CommitRetriever.retrieveCommits(git, tickets, versions);
 
         //get the metrics
-        assert commits != null;
         instances = MetricsCalculator.getInstances(git, commits, versions, mapInst);
 
         output = String.format("Assembling CSV file%n");

@@ -14,13 +14,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
+import java.util.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,6 +65,8 @@ public class VersionRetriever {
         StringBuilder csvContent = new StringBuilder();
         csvContent.append("Index,Version ID,Version Name,Date\n");
 
+        int counter = 0;
+
         for (int i = 0; i < versions.length(); i++) {
             JSONObject version = versions.getJSONObject(i);
             if (version.has("releaseDate")) {
@@ -75,7 +74,9 @@ public class VersionRetriever {
                 String name = version.optString("name", "");
                 String id = version.optString("id", "");
 
-                csvContent.append(i + 1).append(",");
+                counter += 1;
+
+                csvContent.append(counter).append(",");
                 csvContent.append(id).append(",");
                 csvContent.append(name).append(",");
                 csvContent.append(releaseDate).append("\n");
@@ -84,6 +85,11 @@ public class VersionRetriever {
 
         String fileName = Properties.OUTPUT_DIRECTORY + projectName + "VersionInfo.csv";
         Files.write(Paths.get(fileName), csvContent.toString().getBytes());
+
+        //TODO ordinare le versioni secondo release date
+
+
+
     }
 
     private static List<Version> getVersions(String pathVersion) throws IOException, ParseException {
@@ -107,19 +113,18 @@ public class VersionRetriever {
             }
         }
 
-        //don't read the first line
-        boolean firstIteration = true;
-        //assign the starter date as the end date of the previous version in the list
-        for (Version version : versions) {
-            if(firstIteration){
-                version.setStartDate(null);
-                firstIteration = false;
-            } else{
-                version.setStartDate(d);
-            }
-            d = version.getEndDate();
+
+        //we do not consider the last version that is the current version of the project
+        for(int i=0; i < versions.size() -1 ; i++ ){
+            versions.get(i).setEndDate(versions.get(i+1).getStartDate());
+            System.out.println(versions.get(i).getStartDate());
+            System.out.println(versions.get(i).getEndDate());
         }
 
+        //TODO controllare che il meccanismo funzioni
+
+
+        System.exit(1);
         return versions;
     }
 

@@ -127,13 +127,19 @@ public class AcumeInfo {
     }
 
     private static String extractNPofB() {
-        String csvFile = Properties.ACUME_DIRECTORY+"/EAM_NEAM_output.csv"; // Search for the output file
+        String csvFile = Properties.ACUME_DIRECTORY+"EAM_NEAM_output.csv"; // Search for the output file
         try (CSVReader reader = new CSVReader(new FileReader(csvFile))) {
+            String[]  nextLine;
             // ignore the first line
             reader.readNext();
+            //read the second line
+            nextLine = reader.readNext();
 
-            // read the second line with the data
-            String[] nextLine = reader.readNext();
+            //in windows the second line is empty, you have to read the third
+            if(nextLine.length==1){
+                nextLine = reader.readNext();
+            }
+
             //return the fourth column in (NPofB20)
             return nextLine[3];
         } catch (IOException | CsvValidationException e) {
